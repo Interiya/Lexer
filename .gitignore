@@ -2,3 +2,7 @@
 *.txt
 *.raw
 *.bat
+*.in
+*.out
+*.py
+*.xml

@@ -1,46 +1,114 @@
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <string>
 #include <map>
+#include <cstdlib>
 
-#include "matrix.h"
+//#include "matrix.h"
+
+int matrix[56][31] = {
+        1,4,4,-1,-1,7,9,11,13,5,29,21,-1,24,25,40,-1,26,27,16,18,15,28,52,30,23,4,31,43,48,-1,
+        1,-1,-1,-1,-1,-1,-1,-1,-1,2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,49,-1,
+        3,-1,-1,-1,-1,-1,-1,-1,-1,45,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,49,-1,
+        4,4,4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,4,-1,-1,4,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,10,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,36,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,12,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,20,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,19,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,22,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,38,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        32,32,32,32,47,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,-1,32,32,-1,
+        34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,33,34,34,46,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,35,34,34,46,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        36,36,36,36,-1,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,-1,
+        37,37,37,37,37,37,37,37,38,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,37,46,
+        37,37,37,37,37,37,37,37,38,37,37,37,37,37,37,37,37,37,39,37,37,37,37,37,37,37,37,37,37,37,46,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,42,41,41,41,41,41,41,41,41,41,41,41,41,41,46,
+        41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,42,41,41,41,41,41,41,41,41,41,41,41,41,41,46,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        44,44,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,44,-1,
+        44,44,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,44,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        4,4,4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,4,-1,-1,4,-1,
+        50,-1,-1,-1,-1,51,51,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        53,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,54,-1,-1,
+        53,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        55,55,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,55,-1,
+        55,55,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,55,-1,
+};
 
 using namespace std;
 
-
-
-
-enum identType {IDENT= 0, KEYWORDS, OP};
+enum identType {IDENT= 0, KEYWORDS, OP, ERROR};
+enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB, NEXT_LINE, PLUS, MINUS, DIVISION, MULTIPLICATION, POINT, SEMICOLON, COLON, SPACE, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACES, RIGHT_BRACES, LEFT_PARENTHESES, RIGHT_PARENTHESES, LEFT_CHEVRONS, RIGHT_CHEVRONS, CARET, AT_SIGN, HASH, COMMA, EQUALS, UNDERSCORE, PRIME, DOLLAR, CHARACTER_E, TILDE };
 map<string, int> ident_type;
 map<char, int> symbol_type;
 void initmap()
 {
-    symbol_type['\t'] = 3;
-    symbol_type['\n'] = 4;
-    symbol_type['+'] = 5;
-    symbol_type['-'] = 6;
-    symbol_type['/'] = 7;
-    symbol_type['*'] = 8;
-    symbol_type['.'] = 9;
-    symbol_type[';'] = 10;
-    symbol_type[':'] = 11;
-    symbol_type[' '] = 12;
-    symbol_type['['] = 13;
-    symbol_type[']'] = 14;
-    symbol_type['{'] = 15;
-    symbol_type['}'] = 16;
-    symbol_type['('] = 17;
-    symbol_type[')'] = 18;
-    symbol_type['<'] = 19;
-    symbol_type['>'] = 20;
-    symbol_type['^'] = 21;
-    symbol_type['@'] = 22;
-    symbol_type['#'] = 23;
-    symbol_type[','] = 24;
-    symbol_type['='] = 25;
-    symbol_type['_'] = 26;
-    symbol_type['~'] = 27;
+    symbol_type['\t'] = TAB;
+    symbol_type['\n'] = NEXT_LINE;
+    symbol_type['+'] = PLUS;
+    symbol_type['-'] = MINUS;
+    symbol_type['/'] = DIVISION;
+    symbol_type['*'] = MULTIPLICATION;
+    symbol_type['.'] = POINT;
+    symbol_type[';'] = SEMICOLON;
+    symbol_type[':'] = COLON;
+    symbol_type[' '] = SPACE;
+    symbol_type['['] = LEFT_BRACKET;
+    symbol_type[']'] = RIGHT_BRACKET;
+    symbol_type['{'] = LEFT_BRACES;
+    symbol_type['}'] = RIGHT_BRACES;
+    symbol_type['('] = LEFT_PARENTHESES;
+    symbol_type[')'] = RIGHT_PARENTHESES;
+    symbol_type['<'] = LEFT_CHEVRONS;
+    symbol_type['>'] = RIGHT_CHEVRONS;
+    symbol_type['^'] = CARET;
+    symbol_type['@'] = AT_SIGN;
+    symbol_type['#'] = HASH;
+    symbol_type[','] = COMMA;
+    symbol_type['='] = EQUALS;
+    symbol_type['_'] = UNDERSCORE;
+    symbol_type['\''] = PRIME;
+    symbol_type['$'] = DOLLAR;
+    symbol_type['~'] = TILDE;
+
+    ident_type["BadNL"] = ERROR;
+    ident_type["BadEOF"] = ERROR;
+    ident_type["BadChar"] = ERROR;
+    ident_type["NoExp"] = ERROR;
+    ident_type["NoFract"] = ERROR;
+    ident_type["NoHex"] = ERROR;
+    ident_type["NoCC"] = ERROR;
+    ident_type["BadC"] = ERROR;
 
     ident_type["begin"] = KEYWORDS;
     ident_type["forward"] = KEYWORDS;
@@ -78,26 +146,50 @@ void initmap()
 int symbolType(char s)
 {
     if (s >= '0' && s <= '9')
-        return 0;
+        return NUMBER;
+    if ((s == 'E') || (s == 'e'))
+        return CHARACTER_E;
     if ((s >= 'A' && s <= 'F') || (s >= 'a' && s <= 'f'))
-        return 1;
+        return CHARACTER_A_F;
     if ((s >= 'G' && s <= 'Z') || (s >= 'g' && s <= 'z'))
-        return 2;
+        return CHARACTER_G_Z;
     else
         return symbol_type[s];
 }
 
-string toke[33] = {"0", "integer", "0", "real", "ident", "op", "sep", "op", "op", "op", "op", "op", "op", "op", "op", "op", "op", "op", "op", "op", "op", "sep", "op", "op", "sep", "sep", "sep", "sep", "sep", "sep", "@", "sep", "sep"};
-
+string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","Exp","NoExp","NoCC","char#","NoCC","char#$"};
 char currentSymbol;
 int q = 0;
 int line = 1;
 int column = 0;
 ifstream fin("input.txt");
 ofstream fout("output.txt");
+int columnError = 0;
+
+
+class LexerError
+{
+protected:
+    int l;
+    int c;
+    string msg;
+public:
+    LexerError (int L, int C, string MSG)
+    {
+        l = L;
+        c = C;
+        msg = MSG;
+    }
+    void print (){
+        cout << l << "\t" << c << "\t" << msg << endl;
+        fout << l << "\t" << c << "\t" << msg << endl;
+    }
+    ~LexerError(){}
+};
 
 class Token
 {
+protected:
     int l;
     int c;
     string tok;
@@ -109,15 +201,13 @@ public:
         c = C;
         tok = TOK;
         leks = LEKS;
+    }
+    virtual void print(){
         cout << l << "\t" << c << "\t" << tok << "\t" << leks << endl;
         fout << l << "\t" << c << "\t" << tok << "\t" << leks << endl;
     }
-//    void Print(){
-//
-//    }
     ~Token(){}
 };
-
 template<class V>
 class TokenVal: public Token
 {
@@ -125,35 +215,50 @@ class TokenVal: public Token
 public:
     TokenVal(int L, int C, string TOK, string LEKS, V val):
             val(val),
-//            this->tok = tok;
-            Token(L, C, TOK, LEKS){ }
+            Token(L, C, TOK, LEKS){}
+    void print(){
+        cout << l << "\t" << c << "\t" << tok << "\t" << leks << "\t" << val << endl;
+        fout << l << "\t" << c << "\t" << tok << "\t" << leks << "\t" << val << endl;
+    }
 };
-
-//template<class V> class TokenVal
-//{
-//    V val;
-//public:
-//    TokenVal(int L, int C, string TOK, string LEKS, V val){
-//        Token(L, C, TOK, LEKS);
-//        val(val);
-//    }
-//};
+template<>
+void TokenVal<double>::print() {
+    char buf[11];
+    sprintf(buf, "%.4E", val);
+    buf[8] = buf[9]; buf[9] = buf[10]; buf[10] = 0;
+    cout << l << "\t" << c << "\t" << tok <<"\t" << leks << "\t" << buf << endl;
+    fout << l << "\t" << c << "\t" << tok <<"\t" << leks << "\t" << buf << endl;
+}
 
 void next_char()
 {
     fin >> currentSymbol;
+
     if (fin.eof()) currentSymbol = '~';
-    if ( symbolType(currentSymbol) == 4)
+    if (symbolType(currentSymbol) == NEXT_LINE)
     {
         line++;
+        columnError = column;
         column = 0;
-    } else column++;
+    } else
+    if (symbolType(currentSymbol) == TAB)
+    {
+        column = column/4 * 4 +4;
+    }
+    else column++;
+  //  cout << currentSymbol << " " << column << endl;
 }
 
+Token *bufer = NULL;
 Token *get_token ()
 {
-    if (fin.eof())
-        return 0;
+    if (bufer != NULL)
+    {
+        Token *temp = bufer;
+        bufer = NULL;
+        return temp;
+    }
+    if (fin.eof()) return 0;
     string leksema = "";
     string tokenType = "";
     int lineCur;
@@ -163,7 +268,7 @@ Token *get_token ()
     lineCur = line;
     columnCur = column;
 
-    if ((symbolType(currentSymbol) != 12) && (symbolType(currentSymbol) != 4) && (symbolType(currentSymbol) != 3))
+    if ((symbolType(currentSymbol) != SPACE) && (symbolType(currentSymbol) != NEXT_LINE) && (symbolType(currentSymbol) != TAB))
     {
         do
         {
@@ -174,22 +279,91 @@ Token *get_token ()
             next_char();
         } while(1);
         tokenType = toke[st];
-        if (tokenType == "ident" && (ident_type[leksema] == KEYWORDS)) {
-            tokenType = "keyword";
+        if (tokenType == "n2")
+        {
+            leksema = leksema.substr(0, leksema.size()-2);
+            bufer = new Token(lineCur, column - 2, "sep", "..");
+            tokenType = "integer";
         }
-        if (tokenType == "ident" && (ident_type[leksema] == OP)) {
-            tokenType = "op";
-        }
-        if ( tokenType == "integer") {
+        if ( tokenType == "integer")
+        {
             int a;
-            string s = leksema;
-            istringstream iss(s);
-            iss >> a;
+            a = atoi(leksema.c_str());
             TokenVal<int> *tokenVal = new TokenVal<int>(lineCur, columnCur, tokenType, leksema, a);
             return tokenVal;
         }
-
-
+        if ((tokenType == "real") || (tokenType == "Exp"))
+        {
+            double a;
+            a = atof(leksema.c_str());
+            TokenVal<double> *tokenVal = new TokenVal<double>(lineCur, columnCur, "real", leksema, a);
+            return tokenVal;
+        }
+        if (tokenType == "ident" && (ident_type[leksema] == KEYWORDS)) tokenType = "keyword";
+        if (tokenType == "ident" && (ident_type[leksema] == OP)) tokenType = "op";
+        if (tokenType == "char")
+        {
+            char d;
+            d = leksema[1];
+            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
+            return tokenVal;
+        }
+        if (tokenType == "char#")
+        {
+            string s;
+            int a;
+            char d;
+            s = leksema.substr(1, leksema.size());
+            a = atoi(s.c_str());
+            d = (char)a;
+            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, "char", leksema, d);
+            return tokenVal;
+        }
+        if (tokenType == "char#$")
+        {
+            string s;
+            int a;
+            char d;
+            s = leksema.substr(2, leksema.size());
+            a = strtol (s.c_str(), NULL, 16);
+            d = (char)a;
+            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, "char", leksema, d);
+            return tokenVal;
+        }
+        if (tokenType == "string")
+        {
+            string s;
+            s = leksema.substr(1,leksema.size()-2);
+            TokenVal<string> *tokenVal = new TokenVal<string>(lineCur, columnCur, tokenType, leksema, s);
+            return tokenVal;
+        }
+        if (tokenType == "hex")
+        {
+            long int a;
+            string s;
+            s = leksema.substr(1, leksema.size());
+            a = strtol (s.c_str(), NULL, 16);
+            TokenVal<int> *tokenVal = new TokenVal<int>(lineCur, columnCur, tokenType, leksema, a);
+            return tokenVal;
+        }
+        if (ident_type[tokenType] == ERROR)
+        {
+            if (tokenType == "BadNL")
+            {
+                columnCur = columnError +1;
+            } else
+            if (tokenType == "BadEOF")
+            {
+                lineCur = line;
+                columnCur = column - 1;
+            }
+            else columnCur = column;
+            throw new LexerError(lineCur,columnCur,tokenType);
+        }
+        if (tokenType == "comment")
+        {
+            return get_token();
+        }
 
         Token *token = new Token(lineCur, columnCur, tokenType, leksema);
         return token;
@@ -207,9 +381,10 @@ int main()
     fin >> noskipws;
     next_char();
     Token *cur;
-    while (cur = get_token())
-    {
-        delete cur;
-    }
-
+    try {
+        while (cur = get_token()) {
+            cur->print();
+            delete cur;
+        }
+    }catch (LexerError *e) { e->print(); }
 }
