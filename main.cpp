@@ -157,7 +157,7 @@ int symbolType(char s)
         return symbol_type[s];
 }
 
-string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#$"};
+string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#"};
 char currentSymbol;
 int q = 0;
 int line = 1;
@@ -312,19 +312,14 @@ Token *get_token ()
             string s;
             int a;
             char d;
-            s = leksema.substr(1, leksema.size());
-            a = atoi(s.c_str());
-            d = (char)a;
-            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, "char", leksema, d);
-            return tokenVal;
-        }
-        if (tokenType == "char#$")
-        {
-            string s;
-            int a;
-            char d;
-            s = leksema.substr(2, leksema.size());
-            a = strtol (s.c_str(), NULL, 16);
+            if (leksema[1] == '$')
+            {
+                s = leksema.substr(2, leksema.size());
+                a = strtol (s.c_str(), NULL, 16);
+            } else {
+                s = leksema.substr(1, leksema.size());
+                a = atoi(s.c_str());
+            }
             d = (char)a;
             TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, "char", leksema, d);
             return tokenVal;
