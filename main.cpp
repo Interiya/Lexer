@@ -38,7 +38,7 @@ int matrix[56][31] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-        32,32,32,32,47,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,-1,32,32,-1,
+        32,32,32,32,47,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,33,32,32,-1,
         34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,33,34,34,46,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,35,34,34,46,
@@ -157,7 +157,7 @@ int symbolType(char s)
         return symbol_type[s];
 }
 
-string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","Exp","NoExp","NoCC","char#","NoCC","char#$"};
+string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#$"};
 char currentSymbol;
 int q = 0;
 int line = 1;
@@ -246,7 +246,6 @@ void next_char()
         column = column/4 * 4 +4;
     }
     else column++;
-  //  cout << currentSymbol << " " << column << endl;
 }
 
 Token *bufer = NULL;
@@ -292,7 +291,7 @@ Token *get_token ()
             TokenVal<int> *tokenVal = new TokenVal<int>(lineCur, columnCur, tokenType, leksema, a);
             return tokenVal;
         }
-        if ((tokenType == "real") || (tokenType == "Exp"))
+        if (tokenType == "real")
         {
             double a;
             a = atof(leksema.c_str());
@@ -304,7 +303,7 @@ Token *get_token ()
         if (tokenType == "char")
         {
             char d;
-            d = leksema[1];
+            if (leksema.size() != 2) d = leksema[1];
             TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
             return tokenVal;
         }
