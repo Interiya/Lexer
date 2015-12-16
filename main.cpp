@@ -6,7 +6,7 @@
 
 //#include "matrix.h"
 
-int matrix[56][31] = {
+int matrix[59][31] = {
         1,4,4,-1,-1,7,9,11,13,5,29,21,-1,24,25,40,-1,26,27,16,18,15,28,52,30,23,4,31,43,48,-1,
         1,-1,-1,-1,-1,-1,-1,-1,-1,2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,49,-1,
         3,-1,-1,-1,-1,-1,-1,-1,-1,45,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -38,7 +38,7 @@ int matrix[56][31] = {
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-        32,32,32,32,47,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,33,32,32,-1,
+        32,32,32,32,47,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,56,32,32,-1,
         34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,33,34,34,46,
         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         34,34,34,34,47,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,35,34,34,46,
@@ -63,7 +63,12 @@ int matrix[56][31] = {
         53,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
         55,55,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,55,-1,
         55,55,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,55,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,57,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,58,-1,-1,46,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 };
+
+
 
 using namespace std;
 
@@ -157,7 +162,7 @@ int symbolType(char s)
         return symbol_type[s];
 }
 
-string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#"};
+string toke[59] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#","string","0","char"};
 char currentSymbol;
 int q = 0;
 int line = 1;
@@ -303,7 +308,7 @@ Token *get_token ()
         if (tokenType == "char")
         {
             char d;
-            if (leksema.size() != 2) d = leksema[1];
+            d = leksema[1];
             TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
             return tokenVal;
         }
@@ -312,6 +317,7 @@ Token *get_token ()
             string s;
             int a;
             char d;
+            tokenType = "char";
             if (leksema[1] == '$')
             {
                 s = leksema.substr(2, leksema.size());
@@ -320,14 +326,16 @@ Token *get_token ()
                 s = leksema.substr(1, leksema.size());
                 a = atoi(s.c_str());
             }
+            cout << a << endl;
+            if (a > 127) throw new LexerError(lineCur,column,"BadCC");
             d = (char)a;
-            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, "char", leksema, d);
+            TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
             return tokenVal;
         }
         if (tokenType == "string")
         {
             string s;
-            s = leksema.substr(1,leksema.size()-2);
+            if (leksema.size() != 2) s = leksema.substr(1,leksema.size()-2);
             TokenVal<string> *tokenVal = new TokenVal<string>(lineCur, columnCur, tokenType, leksema, s);
             return tokenVal;
         }
