@@ -76,7 +76,13 @@ int matrix[61][32] = {
 using namespace std;
 
 enum identType {IDENT= 0, KEYWORDS, OP, ERROR};
-enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB, NEXT_LINE, PLUS, MINUS, DIVISION, MULTIPLICATION, POINT, SEMICOLON, COLON, SPACE, LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACES, RIGHT_BRACES, LEFT_PARENTHESES, RIGHT_PARENTHESES, LEFT_CHEVRONS, RIGHT_CHEVRONS, CARET, AT_SIGN, HASH, COMMA, EQUALS, UNDERSCORE, PRIME, DOLLAR, CHARACTER_E, TILDE, OTHER_CHARACTER };
+enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB,
+    NEXT_LINE, PLUS, MINUS, DIVISION, MULTIPLICATION, POINT,
+    SEMICOLON, COLON, SPACE, LEFT_BRACKET, RIGHT_BRACKET,
+    LEFT_BRACES, RIGHT_BRACES, LEFT_PARENTHESES,
+    RIGHT_PARENTHESES, LEFT_CHEVRONS, RIGHT_CHEVRONS, CARET,
+    AT_SIGN, HASH, COMMA, EQUALS, UNDERSCORE, PRIME, DOLLAR,
+    CHARACTER_E, TILDE, OTHER_CHARACTER };
 map<string, int> ident_type;
 map<char, int> symbol_type;
 void initmap()
@@ -167,11 +173,17 @@ int symbolType(char s)
         return OTHER_CHARACTER;
 }
 
-string toke[] = {"0","integer","NoFract","real","ident","op","sep","op","op","op","op","op","op","op","op","op","op","op","op","op","op","sep","op","op","sep","sep","sep","sep","op","sep","sep","0","0","char","0","string","comment","0","0","comment","0","0","comment","NoHex","hex","n2","BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC","char#","NoCC","char#","string","0","char","BadChar","0"};
-char currentSymbol;
+string toke[61] = {"0","integer","NoFract","real","ident","op","sep","op",
+                 "op","op","op","op","op","op","op","op","op","op","op",
+                 "op","op","sep","op","op","sep","sep","sep","sep","op",
+                 "sep","sep","0","0","char","0","string","comment","0",
+                 "0","comment", "0","0","comment","NoHex","hex","n2",
+                 "BadEOF","BadNL","ident","NoExp","real","NoExp","NoCC",
+                 "char#","NoCC","char#","string","0","char","BadChar","0"};
+char currentSymbol = '\0';
 int q = 0;
 int line = 1;
-int column = 0;
+int column = 1;
 ifstream fin("input.txt");
 ofstream fout("output.txt");
 int columnError = 0;
@@ -242,28 +254,30 @@ void TokenVal<double>::print() {
 
 void next_char()
 {
+
+    if (currentSymbol != '\0')
+    {
+        if (symbolType(currentSymbol) == NEXT_LINE) {
+            line++;
+            columnError = column;
+            column = 1;
+        } else if (symbolType(currentSymbol) == TAB) {
+            column = ((column - 1) / 4 + 1) * 4 + 1;
+        }
+        else column++;
+    }
+
     fin >> currentSymbol;
     if (fin.eof()) currentSymbol = '~';
-    if (symbolType(currentSymbol) == NEXT_LINE)
-    {
-        line++;
-        columnError = column;
-        column = 0;
-    } else
-    if (symbolType(currentSymbol) == TAB)
-    {
-        column = column/4 * 4 +4;
     }
-    else column++;
-}
 
-Token *bufer = NULL;
-Token *get_token ()
-{
-    if (bufer != NULL)
+    Token *bufer = NULL;
+    Token *get_token ()
     {
-        Token *temp = bufer;
-        bufer = NULL;
+        if (bufer != NULL)
+        {
+            Token *temp = bufer;
+            bufer = NULL;
         return temp;
     }
     if (fin.eof()) return 0;
@@ -323,7 +337,7 @@ Token *get_token ()
             int a;
             char d;
             tokenType = "char";
-            if (leksema[1] == '$')
+            if (symbol_type[leksema[1]] == DOLLAR)
             {
                 s = leksema.substr(2, leksema.size());
                 a = strtol (s.c_str(), NULL, 16);
@@ -331,7 +345,6 @@ Token *get_token ()
                 s = leksema.substr(1, leksema.size());
                 a = atoi(s.c_str());
             }
-            cout << a << endl;
             if (a > 127) throw new LexerError(lineCur,column,"BadCC");
             d = (char)a;
             TokenVal<char> *tokenVal = new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
@@ -364,11 +377,11 @@ Token *get_token ()
         if (ident_type[tokenType] == ERROR)
         {
             if (tokenType == "BadNL")
-                columnCur = columnError +1;
+                columnCur = columnError;
             else if (tokenType == "BadEOF")
             {
                 lineCur = line;
-                columnCur = column - 1;
+                columnCur = column-1;
             }
             else if (tokenType == "BadChar")
                 columnCur = column - 1;
@@ -380,7 +393,6 @@ Token *get_token ()
         {
             return get_token();
         }
-
         Token *token = new Token(lineCur, columnCur, tokenType, leksema);
         return token;
     }
