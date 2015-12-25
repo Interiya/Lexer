@@ -69,13 +69,12 @@ int matrix[61][32] = {
 };
 using namespace std;
 
-enum identType {NO_TOKEN=0, INTEGER, NO_FRACT, REAL, IDENT,
+enum tokenType {NO_TOKEN=0, INTEGER, NO_FRACT, REAL, IDENT,
     KEYWORD, OP, SEP, CHAR, STRING, COMMENT, NO_HEX, HEX,
-    N2, BAD_EOF, BAD_NL, NO_EXP, NO_CC, CHAR$, CHAR$$, BAD_CHAR, ERROR};
+    N2, BAD_EOF, BAD_NL, NO_EXP, NO_CC, CHAR10, CHAR16, BAD_CHAR, ERROR, BAD_CC};
 string tokenTypeName[] = {"","integer","NoFract","real","ident","keyword","op","sep","char",
-                        "string","comment","NoHex","hex","n2",
-                        "BadEOF","BadNL","NoExp","NoCC",
-                        "char#","char#$","BadChar"};
+                        "string","comment","NoHex","hex","n2", "BadEOF","BadNL","NoExp","NoCC",
+                        "char#","char#$","BadChar","BadCC"};
 enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB,
     NEXT_LINE, PLUS, MINUS, DIVISION, MULTIPLICATION, POINT,
     SEMICOLON, COLON, SPACE, LEFT_BRACKET, RIGHT_BRACKET,
@@ -83,7 +82,7 @@ enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB,
     RIGHT_PARENTHESES, LEFT_CHEVRONS, RIGHT_CHEVRONS, CARET,
     AT_SIGN, HASH, COMMA, EQUALS, UNDERSCORE, PRIME, DOLLAR,
     CHARACTER_E, TILDE, OTHER_CHARACTER };
-map<string, identType> ident_type;
+map<string, tokenType> token_type;
 map<char, symbolType> symbol_type;
 void initmap()
 {
@@ -115,46 +114,46 @@ void initmap()
     symbol_type['$'] = DOLLAR;
     symbol_type['~'] = TILDE;
 
-    ident_type["BadNL"] = ERROR;
-    ident_type["BadEOF"] = ERROR;
-    ident_type["BadChar"] = ERROR;
-    ident_type["NoExp"] = ERROR;
-    ident_type["NoFract"] = ERROR;
-    ident_type["NoHex"] = ERROR;
-    ident_type["NoCC"] = ERROR;
-    ident_type["BadC"] = ERROR;
+    token_type["BadNL"] = ERROR;
+    token_type["BadEOF"] = ERROR;
+    token_type["BadChar"] = ERROR;
+    token_type["NoExp"] = ERROR;
+    token_type["NoFract"] = ERROR;
+    token_type["NoHex"] = ERROR;
+    token_type["NoCC"] = ERROR;
+    token_type["BadC"] = ERROR;
 
-    ident_type["begin"] = KEYWORD;
-    ident_type["forward"] = KEYWORD;
-    ident_type["do"] = KEYWORD;
-    ident_type["else"] = KEYWORD;
-    ident_type["end"] = KEYWORD;
-    ident_type["for"] = KEYWORD;
-    ident_type["function"] = KEYWORD;
-    ident_type["if"] = KEYWORD;
-    ident_type["array"] = KEYWORD;
-    ident_type["of"] = KEYWORD;
-    ident_type["procedure"] = KEYWORD;
-    ident_type["program"] = KEYWORD;
-    ident_type["record"] = KEYWORD;
-    ident_type["then"] = KEYWORD;
-    ident_type["to"] = KEYWORD;
-    ident_type["type"] = KEYWORD;
-    ident_type["var"] = KEYWORD;
-    ident_type["while"] = KEYWORD;
-    ident_type["break"] = KEYWORD;
-    ident_type["continue"] = KEYWORD;
-    ident_type["downto"] = KEYWORD;
-    ident_type["exit"] = KEYWORD;
-    ident_type["repeat"] = KEYWORD;
-    ident_type["until"] = KEYWORD;
+    token_type["begin"] = KEYWORD;
+    token_type["forward"] = KEYWORD;
+    token_type["do"] = KEYWORD;
+    token_type["else"] = KEYWORD;
+    token_type["end"] = KEYWORD;
+    token_type["for"] = KEYWORD;
+    token_type["function"] = KEYWORD;
+    token_type["if"] = KEYWORD;
+    token_type["array"] = KEYWORD;
+    token_type["of"] = KEYWORD;
+    token_type["procedure"] = KEYWORD;
+    token_type["program"] = KEYWORD;
+    token_type["record"] = KEYWORD;
+    token_type["then"] = KEYWORD;
+    token_type["to"] = KEYWORD;
+    token_type["type"] = KEYWORD;
+    token_type["var"] = KEYWORD;
+    token_type["while"] = KEYWORD;
+    token_type["break"] = KEYWORD;
+    token_type["continue"] = KEYWORD;
+    token_type["downto"] = KEYWORD;
+    token_type["exit"] = KEYWORD;
+    token_type["repeat"] = KEYWORD;
+    token_type["until"] = KEYWORD;
 
-    ident_type["and"] = OP;
-    ident_type["div"]= OP;
-    ident_type["mod"] = OP;
-    ident_type["not"] = OP;
-    ident_type["or"] = OP;
-    ident_type["xor"] = OP;
+    token_type["and"] = OP;
+    token_type["div"]= OP;
+    token_type["mod"] = OP;
+    token_type["not"] = OP;
+    token_type["or"] = OP;
+    token_type["xor"] = OP;
 }
 
 int symbolType(char s)
@@ -173,13 +172,13 @@ int symbolType(char s)
         return OTHER_CHARACTER;
 }
 
-int tokenTypeCode[] = {NO_TOKEN,INTEGER,NO_FRACT,REAL ,IDENT ,OP,
+tokenType stateToTokenType[] = {NO_TOKEN,INTEGER,NO_FRACT,REAL ,IDENT ,OP,
                  SEP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,
                  OP,SEP,OP,OP,SEP,SEP,SEP,SEP,OP,SEP,SEP,
                  NO_TOKEN,NO_TOKEN,CHAR,NO_TOKEN,STRING,
                  COMMENT,NO_TOKEN,NO_TOKEN,COMMENT,NO_TOKEN,
                  NO_TOKEN,COMMENT,NO_HEX,HEX,N2,BAD_EOF,BAD_NL,
-                 IDENT,NO_EXP,REAL,NO_EXP,NO_CC,CHAR$,NO_CC,CHAR$$,
+                 IDENT,NO_EXP,REAL,NO_EXP,NO_CC,CHAR10,NO_CC,CHAR16,
                  STRING,NO_TOKEN,CHAR,BAD_CHAR,NO_TOKEN};
 
 char currentSymbol = '\0';
@@ -195,17 +194,17 @@ class LexerError
 protected:
     int l;
     int c;
-    string msg;
+    tokenType msg;
 public:
-    LexerError (int L, int C, string MSG)
+    LexerError (int L, int C, tokenType MSG)
     {
         l = L;
         c = C;
         msg = MSG;
     }
     void print (){
-        cout << l << "\t" << c << "\t" << msg << endl;
-        fout << l << "\t" << c << "\t" << msg << endl;
+        cout << l << "\t" << c << "\t" << tokenTypeName[msg] << endl;
+        fout << l << "\t" << c << "\t" << tokenTypeName[msg] << endl;
     }
     ~LexerError(){}
 };
@@ -214,19 +213,19 @@ class Token
 protected:
     int l;
     int c;
-    string tok;
+    tokenType type;
     string leks;
 public:
-    Token (int L, int C, string TOK, string LEKS)
+    Token (int L, int C, tokenType TYPE, string LEKS)
     {
         l = L;
         c = C;
-        tok = TOK;
+        type = TYPE;
         leks = LEKS;
     }
     virtual void print(){
-        cout << l << "\t" << c << "\t" << tok << "\t" << leks << endl;
-        fout << l << "\t" << c << "\t" << tok << "\t" << leks << endl;
+        cout << l << "\t" << c << "\t" << tokenTypeName[type] << "\t" << leks << endl;
+        fout << l << "\t" << c << "\t" << type << "\t" << leks << endl;
     }
     ~Token(){}
 };
@@ -235,12 +234,12 @@ class TokenVal: public Token
 {
     V val;
 public:
-    TokenVal(int L, int C, string TOK, string LEKS, V val):
+    TokenVal(int L, int C, tokenType TYPE, string LEKS, V val):
             val(val),
-            Token(L, C, TOK, LEKS){}
+            Token(L, C, TYPE, LEKS){}
     void print(){
-        cout << l << "\t" << c << "\t" << tok << "\t" << leks << "\t" << val << endl;
-        fout << l << "\t" << c << "\t" << tok << "\t" << leks << "\t" << val << endl;
+        cout << l << "\t" << c << "\t" << type << "\t" << leks << "\t" << val << endl;
+        fout << l << "\t" << c << "\t" << type << "\t" << leks << "\t" << val << endl;
     }
 };
 template<>
@@ -248,12 +247,11 @@ void TokenVal<double>::print() {
     char buf[11];
     sprintf(buf, "%.4E", val);
     buf[8] = buf[9]; buf[9] = buf[10]; buf[10] = 0;
-    cout << l << "\t" << c << "\t" << tok <<"\t" << leks << "\t" << buf << endl;
-    fout << l << "\t" << c << "\t" << tok <<"\t" << leks << "\t" << buf << endl;
+    cout << l << "\t" << c << "\t" << type <<"\t" << leks << "\t" << buf << endl;
+    fout << l << "\t" << c << "\t" << type <<"\t" << leks << "\t" << buf << endl;
 }
 void next_char()
 {
-
     if (currentSymbol != '\0')
     {
         int currentSymbolType = symbolType(currentSymbol);
@@ -266,11 +264,9 @@ void next_char()
         }
         else column++;
     }
-
     fin >> currentSymbol;
     if (fin.eof()) currentSymbol = '~';
 }
-
 Token *bufer = NULL;
 
 Token *get_token ()
@@ -282,60 +278,57 @@ Token *get_token ()
         return temp;
     }
     if (fin.eof()) return 0;
-    string leksema = "";
-    string tokenType = "";
+    string lexema = "";
     int lineCur = line;
     int columnCur = column;
     int currentState = 0;
-    int currentTokenTypeCode;
     q = 0;
     while(true)
     {
         currentState = q;
         q = matrix[q][symbolType(currentSymbol)];
         if (q < 0) break;
-        leksema += currentSymbol;
+        lexema += currentSymbol;
         next_char();
     }
-    currentTokenTypeCode = tokenTypeCode[currentState];
-    tokenType = tokenTypeName[currentTokenTypeCode];
-
-    if (currentTokenTypeCode == N2)
+    tokenType currentStateToTokenType = stateToTokenType[currentState];
+    if (currentStateToTokenType == N2)
     {
-        leksema = leksema.substr(0, leksema.size()-2);
-        bufer = new Token(lineCur, column - 2, tokenTypeName[SEP], "..");
-        tokenType = tokenTypeName[INTEGER];
-        currentTokenTypeCode = INTEGER;
+        lexema = lexema.substr(0, lexema.size()-2);
+        bufer = new Token(lineCur, column - 2, SEP, "..");
+        currentStateToTokenType = INTEGER;
     }
-    if ( currentTokenTypeCode == INTEGER || currentTokenTypeCode == HEX)
+    if ( currentStateToTokenType == INTEGER || currentStateToTokenType == HEX)
     {
-        string s = leksema.substr(currentTokenTypeCode == HEX ? 1 : 0, leksema.size());
-        int a = strtol (s.c_str(), NULL, currentTokenTypeCode == HEX ? 16 : 10);
-        return new TokenVal<int>(lineCur, columnCur, tokenType, leksema, a);
+        string s = lexema.substr(currentStateToTokenType == HEX ? 1 : 0, lexema.size());
+        int a = strtol (s.c_str(), NULL, currentStateToTokenType == HEX ? 16 : 10);
+        return new TokenVal<int>(lineCur, columnCur, currentStateToTokenType, lexema, a);
     }
-    if (currentTokenTypeCode == REAL)
+    if (currentStateToTokenType == REAL)
     {
-        double a = atof(leksema.c_str());
-        return new TokenVal<double>(lineCur, columnCur, tokenTypeName[REAL], leksema, a);
+        double a = atof(lexema.c_str());
+        return new TokenVal<double>(lineCur, columnCur, REAL, lexema, a);
     }
-    if (currentTokenTypeCode == IDENT && (ident_type[leksema] == KEYWORD)) tokenType = tokenTypeName[KEYWORD];
-    if (currentTokenTypeCode == IDENT && (ident_type[leksema] == OP)) tokenType = tokenTypeName[OP];
-    if (currentTokenTypeCode == CHAR)
+    if (currentStateToTokenType == IDENT && token_type[lexema] == KEYWORD)
+        currentStateToTokenType = KEYWORD;
+    if (currentStateToTokenType == IDENT && token_type[lexema] == OP)
+        currentStateToTokenType = OP;
+    if (currentStateToTokenType == CHAR)
     {
-        char d = leksema[1];
-        return new TokenVal<char>(lineCur, columnCur, tokenType, leksema, d);
+        char d = lexema[1];
+        return new TokenVal<char>(lineCur, columnCur, currentStateToTokenType, lexema, d);
     }
-    if (currentTokenTypeCode == CHAR$ || currentTokenTypeCode == CHAR$$)
+    if (currentStateToTokenType == CHAR10 || currentStateToTokenType == CHAR16)
     {
-        string s = leksema.substr(currentTokenTypeCode == CHAR$$ ? 2 : 1, leksema.size());
-        int a = strtol (s.c_str(), NULL, currentTokenTypeCode == CHAR$$ ? 16 : 10);
-        tokenType = tokenTypeName[CHAR];
-        if (a > 127) throw new LexerError(lineCur,column,"BadCC");
-        return new TokenVal<char>(lineCur, columnCur, tokenType, leksema, (char)a);
+        string s = lexema.substr(currentStateToTokenType == CHAR16 ? 2 : 1, lexema.size());
+        int a = strtol (s.c_str(), NULL, currentStateToTokenType == CHAR16 ? 16 : 10);
+        if (a > 127) throw new LexerError(lineCur,column,BAD_CC);
+        currentStateToTokenType = CHAR;
+        return new TokenVal<char>(lineCur, columnCur, currentStateToTokenType, lexema, (char)a);
     }
-    if (currentTokenTypeCode == STRING)
+    if (currentStateToTokenType == STRING)
     {
-        string s = leksema.substr(1,leksema.size()-2);
+        string s = lexema.substr(1,lexema.size()-2);
         int index = 0;
         while (true)
         {
@@ -344,29 +337,28 @@ Token *get_token ()
             s.replace (index, 2, "'");
             index ++;
         }
-        return new TokenVal<string>(lineCur, columnCur, tokenType, leksema, s);
+        return new TokenVal<string>(lineCur, columnCur, currentStateToTokenType, lexema, s);
     }
-
-    if (ident_type[tokenType] == ERROR)
+    if (token_type[tokenTypeName[currentStateToTokenType]] == ERROR)
     {
-        if (currentTokenTypeCode == BAD_NL)
+        if (currentStateToTokenType == BAD_NL)
             columnCur = columnError;
-        else if (currentTokenTypeCode == BAD_EOF)
+        else if (currentStateToTokenType == BAD_EOF)
         {
             lineCur = line;
             columnCur = column - 1;
         }
-        else if (currentTokenTypeCode == BAD_CHAR)
+        else if (currentStateToTokenType == BAD_CHAR)
             columnCur = column - 1;
         else
             columnCur = column;
-        throw new LexerError(lineCur,columnCur,tokenType);
+        throw new LexerError(lineCur,columnCur,currentStateToTokenType);
     }
-    if (currentTokenTypeCode == COMMENT)
+    if (currentStateToTokenType == COMMENT)
     {
         return get_token();
     }
-    return new Token(lineCur, columnCur, tokenType, leksema);
+    return new Token(lineCur, columnCur, currentStateToTokenType, lexema);
 }
 int main()
 {
