@@ -71,10 +71,11 @@ using namespace std;
 
 enum tokenType {NO_TOKEN=0, INTEGER, NO_FRACT, REAL, IDENT,
     KEYWORD, OP, SEP, CHAR, STRING, COMMENT, NO_HEX, HEX,
-    N2, BAD_EOF, BAD_NL, NO_EXP, NO_CC, CHAR10, CHAR16, BAD_CHAR, ERROR, BAD_CC};
+    N2, BAD_EOF, BAD_NL, NO_EXP, NO_CC, CHAR10, CHAR16, BAD_CHAR, BAD_CC, ERROR};
 string tokenTypeName[] = {"","integer","NoFract","real","ident","keyword","op","sep","char",
-                        "string","comment","NoHex","hex","n2", "BadEOF","BadNL","NoExp","NoCC",
-                        "char#","char#$","BadChar","BadCC"};
+                          "string","comment","NoHex","hex","n2",
+                          "BadEOF","BadNL","NoExp","NoCC",
+                          "char#","char#$","BadChar", "BadCC"};
 enum symbolType { NUMBER=0, CHARACTER_A_F, CHARACTER_G_Z, TAB,
     NEXT_LINE, PLUS, MINUS, DIVISION, MULTIPLICATION, POINT,
     SEMICOLON, COLON, SPACE, LEFT_BRACKET, RIGHT_BRACKET,
@@ -173,13 +174,13 @@ int symbolType(char s)
 }
 
 tokenType stateToTokenType[] = {NO_TOKEN,INTEGER,NO_FRACT,REAL ,IDENT ,OP,
-                 SEP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,
-                 OP,SEP,OP,OP,SEP,SEP,SEP,SEP,OP,SEP,SEP,
-                 NO_TOKEN,NO_TOKEN,CHAR,NO_TOKEN,STRING,
-                 COMMENT,NO_TOKEN,NO_TOKEN,COMMENT,NO_TOKEN,
-                 NO_TOKEN,COMMENT,NO_HEX,HEX,N2,BAD_EOF,BAD_NL,
-                 IDENT,NO_EXP,REAL,NO_EXP,NO_CC,CHAR10,NO_CC,CHAR16,
-                 STRING,NO_TOKEN,CHAR,BAD_CHAR,NO_TOKEN};
+                                SEP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,OP,
+                                OP,SEP,OP,OP,SEP,SEP,SEP,SEP,OP,SEP,SEP,
+                                NO_TOKEN,NO_TOKEN,CHAR,NO_TOKEN,STRING,
+                                COMMENT,NO_TOKEN,NO_TOKEN,COMMENT,NO_TOKEN,
+                                NO_TOKEN,COMMENT,NO_HEX,HEX,N2,BAD_EOF,BAD_NL,
+                                IDENT,NO_EXP,REAL,NO_EXP,NO_CC,CHAR10,NO_CC,CHAR16,
+                                STRING,NO_TOKEN,CHAR,BAD_CHAR,NO_TOKEN};
 
 char currentSymbol = '\0';
 int q = 0;
@@ -225,7 +226,7 @@ public:
     }
     virtual void print(){
         cout << l << "\t" << c << "\t" << tokenTypeName[type] << "\t" << leks << endl;
-        fout << l << "\t" << c << "\t" << type << "\t" << leks << endl;
+        fout << l << "\t" << c << "\t" << tokenTypeName[type] << "\t" << leks << endl;
     }
     ~Token(){}
 };
@@ -238,8 +239,8 @@ public:
             val(val),
             Token(L, C, TYPE, LEKS){}
     void print(){
-        cout << l << "\t" << c << "\t" << type << "\t" << leks << "\t" << val << endl;
-        fout << l << "\t" << c << "\t" << type << "\t" << leks << "\t" << val << endl;
+        cout << l << "\t" << c << "\t" << tokenTypeName[type] << "\t" << leks << "\t" << val << endl;
+        fout << l << "\t" << c << "\t" << tokenTypeName[type] << "\t" << leks << "\t" << val << endl;
     }
 };
 template<>
@@ -247,8 +248,8 @@ void TokenVal<double>::print() {
     char buf[11];
     sprintf(buf, "%.4E", val);
     buf[8] = buf[9]; buf[9] = buf[10]; buf[10] = 0;
-    cout << l << "\t" << c << "\t" << type <<"\t" << leks << "\t" << buf << endl;
-    fout << l << "\t" << c << "\t" << type <<"\t" << leks << "\t" << buf << endl;
+    cout << l << "\t" << c << "\t" << tokenTypeName[type] <<"\t" << leks << "\t" << buf << endl;
+    fout << l << "\t" << c << "\t" << tokenTypeName[type] <<"\t" << leks << "\t" << buf << endl;
 }
 void next_char()
 {
@@ -267,6 +268,7 @@ void next_char()
     fin >> currentSymbol;
     if (fin.eof()) currentSymbol = '~';
 }
+
 Token *bufer = NULL;
 
 Token *get_token ()
@@ -278,16 +280,19 @@ Token *get_token ()
         return temp;
     }
     if (fin.eof()) return 0;
+
     string lexema = "";
     int lineCur = line;
     int columnCur = column;
     int currentState = 0;
     q = 0;
+
     while(true)
     {
         currentState = q;
         q = matrix[q][symbolType(currentSymbol)];
         if (q < 0) break;
+
         lexema += currentSymbol;
         next_char();
     }
@@ -322,6 +327,7 @@ Token *get_token ()
     {
         string s = lexema.substr(currentStateToTokenType == CHAR16 ? 2 : 1, lexema.size());
         int a = strtol (s.c_str(), NULL, currentStateToTokenType == CHAR16 ? 16 : 10);
+        cout << a << endl;
         if (a > 127) throw new LexerError(lineCur,column,BAD_CC);
         currentStateToTokenType = CHAR;
         return new TokenVal<char>(lineCur, columnCur, currentStateToTokenType, lexema, (char)a);
